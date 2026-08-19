@@ -41,42 +41,101 @@ func buildHTMLReport(r *ScanResult) string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LiteScan 内网信息收集报告</title>
+<title>LiteScan - 内网信息收集报告</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root {
+  --bg-primary: #060b18;
+  --bg-secondary: #0c1224;
+  --bg-card: #111a2e;
+  --bg-card-hover: #152038;
+  --border-primary: #1e2d4a;
+  --border-accent: #2a3f6a;
+  --text-primary: #e8edf5;
+  --text-secondary: #8892a8;
+  --text-muted: #5a6478;
+  --accent-cyan: #00d4ff;
+  --accent-cyan-dim: rgba(0,212,255,0.12);
+  --accent-purple: #8b5cf6;
+  --accent-purple-dim: rgba(139,92,246,0.12);
+  --accent-green: #10b981;
+  --accent-green-dim: rgba(16,185,129,0.12);
+  --accent-red: #ef4444;
+  --accent-red-dim: rgba(239,68,68,0.12);
+  --accent-yellow: #f59e0b;
+  --accent-yellow-dim: rgba(245,158,11,0.12);
+  --accent-blue: #3b82f6;
+  --accent-blue-dim: rgba(59,130,246,0.12);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif; background: #0a0e27; color: #e0e0e0; line-height: 1.6; }
-.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-.header { background: linear-gradient(135deg, #1a1f3a, #2d1b69); padding: 30px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #3d3d7a; }
-.header h1 { color: #00d4ff; font-size: 28px; margin-bottom: 10px; }
-.header .subtitle { color: #8888aa; font-size: 14px; }
-.meta { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 15px; }
-.meta-item { background: rgba(0,212,255,0.1); padding: 6px 14px; border-radius: 20px; font-size: 13px; color: #00d4ff; border: 1px solid rgba(0,212,255,0.3); }
-.section { background: #111633; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2a2a5a; overflow: hidden; }
-.section-title { background: linear-gradient(90deg, #1a1f3a, #2d1b69); padding: 15px 20px; font-size: 18px; color: #00d4ff; border-bottom: 1px solid #2a2a5a; display: flex; align-items: center; gap: 10px; }
-.section-title .icon { font-size: 20px; }
-.section-body { padding: 20px; }
-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-th { background: #1a1f3a; color: #00d4ff; padding: 10px 12px; text-align: left; font-size: 13px; border-bottom: 2px solid #2d1b69; }
-td { padding: 8px 12px; border-bottom: 1px solid #1a1f3a; font-size: 13px; }
-tr:hover td { background: rgba(0,212,255,0.05); }
-.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; }
-.badge-green { background: rgba(0,255,100,0.15); color: #00ff64; border: 1px solid rgba(0,255,100,0.3); }
-.badge-red { background: rgba(255,50,50,0.15); color: #ff5050; border: 1px solid rgba(255,50,50,0.3); }
-.badge-yellow { background: rgba(255,200,0,0.15); color: #ffc800; border: 1px solid rgba(255,200,0,0.3); }
-.badge-blue { background: rgba(0,150,255,0.15); color: #0096ff; border: 1px solid rgba(0,150,255,0.3); }
-.info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
-.info-card { background: #0d1230; padding: 15px; border-radius: 8px; border: 1px solid #2a2a5a; }
-.info-card .label { color: #8888aa; font-size: 12px; margin-bottom: 4px; }
-.info-card .value { color: #e0e0e0; font-size: 14px; word-break: break-all; }
-.risk-box { background: rgba(255,50,50,0.1); border: 1px solid rgba(255,50,50,0.3); border-radius: 8px; padding: 15px; margin-top: 10px; }
-.risk-box .risk-title { color: #ff5050; font-size: 16px; margin-bottom: 10px; }
-.risk-item { display: flex; align-items: center; gap: 10px; margin: 5px 0; }
-.risk-item .count { color: #ff5050; font-size: 24px; font-weight: bold; }
-.risk-item .desc { color: #e0e0e0; font-size: 13px; }
+html { scroll-behavior: smooth; }
+body { font-family: "Inter", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.7; min-height: 100vh; }
+body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 20% 0%, rgba(0,212,255,0.04) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(139,92,246,0.04) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+.container { max-width: 1280px; margin: 0 auto; padding: 24px; position: relative; z-index: 1; }
+.header { background: linear-gradient(135deg, #0c1224 0%, #151a35 40%, #1a1040 70%, #0c1224 100%); padding: 40px 32px; border-radius: var(--radius-lg); margin-bottom: 24px; text-align: center; border: 1px solid var(--border-accent); box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.05); position: relative; overflow: hidden; }
+.header::before { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(0,212,255,0.03) 60deg, transparent 120deg, rgba(139,92,246,0.03) 240deg, transparent 360deg); animation: headerRotate 20s linear infinite; pointer-events: none; }
+@keyframes headerRotate { to { transform: rotate(360deg); } }
+.header h1 { color: var(--accent-cyan); font-size: 32px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; position: relative; }
+.header h1::after { content: ""; display: block; width: 60px; height: 3px; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); margin: 12px auto 0; border-radius: 2px; }
+.header .subtitle { color: var(--text-secondary); font-size: 14px; font-weight: 400; position: relative; }
+.meta { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; position: relative; }
+.meta-item { background: var(--accent-cyan-dim); padding: 5px 14px; border-radius: 20px; font-size: 12px; color: var(--accent-cyan); border: 1px solid rgba(0,212,255,0.2); font-weight: 500; transition: all 0.2s; }
+.meta-item:hover { background: rgba(0,212,255,0.2); border-color: rgba(0,212,255,0.4); transform: translateY(-1px); }
+.stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.stat-card { background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-md); padding: 16px; text-align: center; transition: all 0.3s; box-shadow: var(--shadow-sm); }
+.stat-card:hover { border-color: var(--border-accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.stat-card .stat-value { font-size: 28px; font-weight: 700; font-family: "JetBrains Mono", monospace; }
+.stat-card .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-cyan .stat-value { color: var(--accent-cyan); }
+.stat-purple .stat-value { color: var(--accent-purple); }
+.stat-green .stat-value { color: var(--accent-green); }
+.stat-red .stat-value { color: var(--accent-red); }
+.stat-yellow .stat-value { color: var(--accent-yellow); }
+.stat-blue .stat-value { color: var(--accent-blue); }
+.section { background: var(--bg-secondary); border-radius: var(--radius-lg); margin-bottom: 20px; border: 1px solid var(--border-primary); overflow: hidden; box-shadow: var(--shadow-sm); transition: all 0.3s; }
+.section:hover { border-color: var(--border-accent); box-shadow: var(--shadow-md); }
+.section-title { background: linear-gradient(90deg, var(--bg-card) 0%, rgba(0,212,255,0.05) 100%); padding: 16px 24px; font-size: 16px; color: var(--accent-cyan); border-bottom: 1px solid var(--border-primary); display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.section-title .icon { font-size: 18px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--accent-cyan-dim); border-radius: var(--radius-sm); }
+.section-body { padding: 20px 24px; }
+.sub-title { color: var(--accent-cyan); margin: 18px 0 10px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border-primary); }
+.sub-title::before { content: ""; width: 3px; height: 14px; background: var(--accent-cyan); border-radius: 2px; }
+table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+th { background: var(--bg-card); color: var(--accent-cyan); padding: 10px 14px; text-align: left; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border-accent); text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+td { padding: 9px 14px; border-bottom: 1px solid var(--border-primary); color: var(--text-primary); }
+tr { transition: background 0.15s; }
+tr:hover td { background: rgba(0,212,255,0.03); }
+tr:last-child td { border-bottom: none; }
+.badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; gap: 4px; }
+.badge-green { background: var(--accent-green-dim); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.25); }
+.badge-red { background: var(--accent-red-dim); color: var(--accent-red); border: 1px solid rgba(239,68,68,0.25); }
+.badge-yellow { background: var(--accent-yellow-dim); color: var(--accent-yellow); border: 1px solid rgba(245,158,11,0.25); }
+.badge-blue { background: var(--accent-blue-dim); color: var(--accent-blue); border: 1px solid rgba(59,130,246,0.25); }
+.badge-purple { background: var(--accent-purple-dim); color: var(--accent-purple); border: 1px solid rgba(139,92,246,0.25); }
+.info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.info-card { background: var(--bg-card); padding: 14px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-primary); transition: all 0.2s; }
+.info-card:hover { border-color: var(--border-accent); background: var(--bg-card-hover); }
+.info-card .label { color: var(--text-muted); font-size: 11px; margin-bottom: 3px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.info-card .value { color: var(--text-primary); font-size: 14px; word-break: break-all; font-weight: 500; }
+.risk-box { background: linear-gradient(135deg, var(--accent-red-dim), rgba(239,68,68,0.05)); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius-md); padding: 20px; margin-top: 10px; }
+.risk-box .risk-title { color: var(--accent-red); font-size: 16px; margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.risk-item { display: flex; align-items: center; gap: 12px; margin: 8px 0; padding: 8px 12px; background: rgba(239,68,68,0.06); border-radius: var(--radius-sm); border-left: 3px solid var(--accent-red); }
+.risk-item .count { color: var(--accent-red); font-size: 26px; font-weight: 700; font-family: "JetBrains Mono", monospace; min-width: 40px; text-align: center; }
+.risk-item .desc { color: var(--text-primary); font-size: 13px; }
 .patch-list { display: flex; flex-wrap: wrap; gap: 6px; }
-.patch-tag { background: rgba(0,150,255,0.1); color: #0096ff; padding: 2px 8px; border-radius: 4px; font-size: 11px; border: 1px solid rgba(0,150,255,0.3); }
-.empty { color: #555; text-align: center; padding: 20px; font-style: italic; }
-.footer { text-align: center; color: #555; padding: 20px; font-size: 12px; }
+.patch-tag { background: var(--accent-blue-dim); color: var(--accent-blue); padding: 3px 10px; border-radius: 4px; font-size: 11px; border: 1px solid rgba(59,130,246,0.2); font-family: "JetBrains Mono", monospace; font-weight: 500; }
+.empty { color: var(--text-muted); text-align: center; padding: 24px; font-style: italic; }
+.footer { text-align: center; color: var(--text-muted); padding: 24px; font-size: 12px; border-top: 1px solid var(--border-primary); margin-top: 8px; }
+.footer a { color: var(--accent-cyan); text-decoration: none; }
+.nav-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; justify-content: center; }
+.nav-btn { background: var(--bg-card); color: var(--text-secondary); padding: 6px 14px; border-radius: 20px; font-size: 12px; border: 1px solid var(--border-primary); cursor: pointer; transition: all 0.2s; text-decoration: none; font-weight: 500; }
+.nav-btn:hover { color: var(--accent-cyan); border-color: rgba(0,212,255,0.3); background: var(--accent-cyan-dim); }
+@media (max-width: 768px) { .container { padding: 12px; } .header { padding: 24px 16px; } .header h1 { font-size: 24px; } .stats-bar { grid-template-columns: repeat(2, 1fr); } .info-grid { grid-template-columns: 1fr; } .section-body { padding: 14px 16px; } table { font-size: 12px; } th, td { padding: 7px 8px; } }
 </style>
 </head>
 <body>
@@ -84,24 +143,25 @@ tr:hover td { background: rgba(0,212,255,0.05); }
 `
 
 	html += `<div class="header">
-<h1>LiteScan 内网信息收集报告</h1>
-<div class="subtitle">轻量化内网资产探测 | 仅限授权安全测试使用</div>
+<h1>&#128270; LiteScan</h1>
+<div class="subtitle">内网轻量级信息收集报告 | 仅限授权安全测试使用</div>
 <div class="meta">
-<span class="meta-item">版本: ` + r.Version + `</span>
-<span class="meta-item">开始: ` + r.StartTime + `</span>
-<span class="meta-item">结束: ` + r.EndTime + `</span>
-<span class="meta-item">耗时: ` + r.Duration + `</span>
+<span class="meta-item">&#9889; v` + r.Version + `</span>
+<span class="meta-item">&#128336; ` + r.StartTime + `</span>
+<span class="meta-item">&#9201; ` + r.Duration + `</span>
 `
 	if r.Target != "" {
-		html += `<span class="meta-item">目标: ` + r.Target + `</span>`
+		html += `<span class="meta-item">&#127919; ` + r.Target + `</span>`
 	}
-	html += `<span class="meta-item">线程: ` + fmt.Sprintf("%d", r.Threads) + `</span>`
+	html += `<span class="meta-item">&#128736; ` + fmt.Sprintf("%d", r.Threads) + ` threads</span>`
 	if r.IsDomain {
-		html += `<span class="meta-item">环境: 域环境</span>`
+		html += `<span class="meta-item">&#127968; 域环境</span>`
 	} else {
-		html += `<span class="meta-item">环境: 工作组</span>`
+		html += `<span class="meta-item">&#128101; 工作组</span>`
 	}
 	html += `</div></div>`
+
+	html += buildStatsBar(r)
 
 	html += buildLocalInfoHTML(r)
 	html += buildAliveHostsHTML(r)
@@ -115,9 +175,39 @@ tr:hover td { background: rgba(0,212,255,0.05); }
 	}
 	html += buildRiskHTML(r)
 
-	html += `<div class="footer">LiteScan v` + r.Version + ` | 本报告仅用于授权安全测试 | ` + r.EndTime + `</div>`
+	html += `<div class="footer">LiteScan v` + r.Version + ` &middot; 本报告仅用于授权安全测试 &middot; ` + r.EndTime + `</div>`
 	html += `</div></body></html>`
 
+	return html
+}
+
+func buildStatsBar(r *ScanResult) string {
+	aliveCount := len(r.AliveHosts)
+	smbCount := 0
+	for _, s := range r.SMBInfo {
+		if s.SMBEnabled {
+			smbCount++
+		}
+	}
+	portCount := 0
+	for _, pr := range r.PortScan {
+		portCount += len(pr.Ports)
+	}
+	vulnHigh := 0
+	for _, v := range r.VulnInfo {
+		if v.Severity == "high" {
+			vulnHigh++
+		}
+	}
+
+	html := `<div class="stats-bar">`
+	html += `<div class="stat-card stat-cyan"><div class="stat-value">` + fmt.Sprintf("%d", aliveCount) + `</div><div class="stat-label">存活主机</div></div>`
+	html += `<div class="stat-card stat-purple"><div class="stat-value">` + fmt.Sprintf("%d", smbCount) + `</div><div class="stat-label">SMB服务</div></div>`
+	html += `<div class="stat-card stat-green"><div class="stat-value">` + fmt.Sprintf("%d", portCount) + `</div><div class="stat-label">开放端口</div></div>`
+	html += `<div class="stat-card stat-red"><div class="stat-value">` + fmt.Sprintf("%d", vulnHigh) + `</div><div class="stat-label">高危漏洞</div></div>`
+	html += `<div class="stat-card stat-yellow"><div class="stat-value">` + fmt.Sprintf("%d", len(r.ARPHosts)) + `</div><div class="stat-label">ARP记录</div></div>`
+	html += `<div class="stat-card stat-blue"><div class="stat-value">` + fmt.Sprintf("%d", len(r.NetBIOS)) + `</div><div class="stat-label">NetBIOS</div></div>`
+	html += `</div>`
 	return html
 }
 
@@ -129,9 +219,9 @@ func buildLocalInfoHTML(r *ScanResult) string {
 	html := `<div class="section"><div class="section-title"><span class="icon">&#128187;</span> 本机内网基础信息</div><div class="section-body">`
 
 	html += `<div class="info-grid">`
-	html += infoCard("主机名", li.Hostname)
-	html += infoCard("操作系统", li.OSVersion)
-	html += infoCard("当前用户", li.CurrentUser)
+	html += infoCard("&#128433; 主机名", li.Hostname)
+	html += infoCard("&#128187; 操作系统", li.OSVersion)
+	html += infoCard("&#128100; 当前用户", li.CurrentUser)
 	if li.IsDomainEnv {
 		html += infoCard("域名称", li.DomainName)
 		html += `<div class="info-card"><div class="label">环境类型</div><div class="value"><span class="badge badge-red">域环境</span></div></div>`
@@ -142,7 +232,7 @@ func buildLocalInfoHTML(r *ScanResult) string {
 	html += `</div>`
 
 	if len(li.Adapters) > 0 {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">网络适配器</h3><table><tr><th>名称</th><th>IP地址</th><th>子网掩码</th><th>网关</th><th>DNS</th><th>MAC</th></tr>`
+		html += `<div class="sub-title">网络适配器</div><table><tr><th>名称</th><th>IP地址</th><th>子网掩码</th><th>网关</th><th>DNS</th><th>MAC</th></tr>`
 		for _, a := range li.Adapters {
 			html += fmt.Sprintf(`<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>`, a.Name, a.IPAddress, a.SubnetMask, a.Gateway, a.DNS, a.MACAddress)
 		}
@@ -150,7 +240,7 @@ func buildLocalInfoHTML(r *ScanResult) string {
 	}
 
 	if len(li.OpenPorts) > 0 {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">监听端口 (前50)</h3><table><tr><th>协议</th><th>端口</th><th>状态</th></tr>`
+		html += `<div class="sub-title">监听端口 (前50)</div><table><tr><th>协议</th><th>端口</th><th>状态</th></tr>`
 		count := 0
 		for _, p := range li.OpenPorts {
 			if count >= 50 {
@@ -163,7 +253,7 @@ func buildLocalInfoHTML(r *ScanResult) string {
 	}
 
 	if len(li.AdminUsers) > 0 {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">本地管理员</h3><div class="info-grid">`
+		html += `<div class="sub-title">本地管理员</div><div class="info-grid">`
 		for _, u := range li.AdminUsers {
 			html += infoCard("", u)
 		}
@@ -171,7 +261,7 @@ func buildLocalInfoHTML(r *ScanResult) string {
 	}
 
 	if len(li.SystemPatches) > 0 {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">系统补丁</h3><div class="patch-list">`
+		html += `<div class="sub-title">系统补丁</div><div class="patch-list">`
 		for _, p := range li.SystemPatches {
 			html += `<span class="patch-tag">` + p + `</span>`
 		}
@@ -179,7 +269,7 @@ func buildLocalInfoHTML(r *ScanResult) string {
 	}
 
 	if li.FirewallStatus != "" {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">防火墙状态</h3>`
+		html += `<div class="sub-title">防火墙状态</div>`
 		if li.FirewallStatus == "已启用" {
 			html += `<span class="badge badge-green">已启用</span>`
 		} else if li.FirewallStatus == "已关闭" {
@@ -190,7 +280,7 @@ func buildLocalInfoHTML(r *ScanResult) string {
 	}
 
 	if li.PasswordPolicy != nil {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">密码策略</h3><div class="info-grid">`
+		html += `<div class="sub-title">密码策略</div><div class="info-grid">`
 		pp := li.PasswordPolicy
 		html += infoCard("最小密码长度", pp.MinPasswordLen)
 		html += infoCard("最大密码存留期", pp.MaxPasswordAge)
@@ -203,7 +293,7 @@ func buildLocalInfoHTML(r *ScanResult) string {
 	}
 
 	if len(li.SharedFolders) > 0 {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">共享文件夹 (` + fmt.Sprintf("%d", len(li.SharedFolders)) + `)</h3><div class="patch-list">`
+		html += `<div class="sub-title">共享文件夹 (` + fmt.Sprintf("%d", len(li.SharedFolders)) + `)</div><div class="patch-list">`
 		for _, s := range li.SharedFolders {
 			html += `<span class="patch-tag">` + s + `</span>`
 		}
@@ -211,7 +301,7 @@ func buildLocalInfoHTML(r *ScanResult) string {
 	}
 
 	if len(li.UserSessions) > 0 {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">用户会话</h3><table><tr><th>会话信息</th></tr>`
+		html += `<div class="sub-title">用户会话</div><table><tr><th>会话信息</th></tr>`
 		for _, s := range li.UserSessions {
 			html += fmt.Sprintf(`<tr><td>%s</td></tr>`, s)
 		}
@@ -219,7 +309,7 @@ func buildLocalInfoHTML(r *ScanResult) string {
 	}
 
 	if len(li.StartupItems) > 0 {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">启动项 (` + fmt.Sprintf("%d", len(li.StartupItems)) + `)</h3><div class="patch-list">`
+		html += `<div class="sub-title">启动项 (` + fmt.Sprintf("%d", len(li.StartupItems)) + `)</div><div class="patch-list">`
 		for _, s := range li.StartupItems {
 			html += `<span class="patch-tag">` + s + `</span>`
 		}
@@ -227,7 +317,7 @@ func buildLocalInfoHTML(r *ScanResult) string {
 	}
 
 	if len(li.ScheduledTasks) > 0 {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">计划任务 (` + fmt.Sprintf("%d", len(li.ScheduledTasks)) + `)</h3><table><tr><th>任务名</th></tr>`
+		html += `<div class="sub-title">计划任务 (` + fmt.Sprintf("%d", len(li.ScheduledTasks)) + `)</div><table><tr><th>任务名</th></tr>`
 		for _, t := range li.ScheduledTasks {
 			html += fmt.Sprintf(`<tr><td>%s</td></tr>`, t)
 		}
@@ -235,7 +325,7 @@ func buildLocalInfoHTML(r *ScanResult) string {
 	}
 
 	if len(li.ProcessList) > 0 {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">进程列表 (前50)</h3><table><tr><th>PID</th><th>进程名</th><th>内存(MB)</th></tr>`
+		html += `<div class="sub-title">进程列表 (前50)</div><table><tr><th>PID</th><th>进程名</th><th>内存(MB)</th></tr>`
 		for _, p := range li.ProcessList {
 			html += fmt.Sprintf(`<tr><td>%d</td><td>%s</td><td>%d</td></tr>`, p.PID, p.Name, p.MemMB)
 		}
@@ -359,7 +449,7 @@ func buildDomainHTML(r *ScanResult) string {
 	html += `</div>`
 
 	if len(d.DomainHosts) > 0 {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">域内主机 (` + fmt.Sprintf("%d", len(d.DomainHosts)) + `)</h3><table><tr><th>主机名</th></tr>`
+		html += `<div class="sub-title">域内主机 (` + fmt.Sprintf("%d", len(d.DomainHosts)) + `)</div><table><tr><th>主机名</th></tr>`
 		for _, h := range d.DomainHosts {
 			html += fmt.Sprintf(`<tr><td>%s</td></tr>`, h)
 		}
@@ -367,7 +457,7 @@ func buildDomainHTML(r *ScanResult) string {
 	}
 
 	if len(d.DomainUsers) > 0 {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">域用户 (` + fmt.Sprintf("%d", len(d.DomainUsers)) + `)</h3><table><tr><th>用户名</th></tr>`
+		html += `<div class="sub-title">域用户 (` + fmt.Sprintf("%d", len(d.DomainUsers)) + `)</div><table><tr><th>用户名</th></tr>`
 		for _, u := range d.DomainUsers {
 			html += fmt.Sprintf(`<tr><td>%s</td></tr>`, u)
 		}
@@ -375,7 +465,7 @@ func buildDomainHTML(r *ScanResult) string {
 	}
 
 	if len(d.DomainGPO) > 0 {
-		html += `<h3 style="color:#00d4ff;margin:15px 0 10px;font-size:15px;">域组策略</h3><div class="patch-list">`
+		html += `<div class="sub-title">域组策略</div><div class="patch-list">`
 		for _, g := range d.DomainGPO {
 			html += `<span class="patch-tag">` + g + `</span>`
 		}
