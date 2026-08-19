@@ -4,7 +4,7 @@
 
 **内网轻量级信息收集工具**
 
-[![Version](https://img.shields.io/badge/version-2.0.0-00d4ff.svg?style=flat-square&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB5PSI2MCIgZm9udC1zaXplPSI2MCIgZmlsbD0iIzAwZDRmZiI+8J+OrTwvdGV4dD48L3N2Zz4=)](https://github.com/ganyuanlin/LiteScan)
+[![Version](https://img.shields.io/badge/version-2.1.0-00d4ff.svg?style=flat-square&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB5PSI2MCIgZm9udC1zaXplPSI2MCIgZmlsbD0iIzAwZDRmZiI+8J+OrTwvdGV4dD48L3N2Zz4=)](https://github.com/ganyuanlin/LiteScan)
 [![Go](https://img.shields.io/badge/Go-1.21+-00ADD8.svg?style=flat-square&logo=go)](https://go.dev/)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4.svg?style=flat-square&logo=windows)](https://github.com/ganyuanlin/LiteScan)
 [![License](https://img.shields.io/badge/license-MIT-F7DF1E.svg?style=flat-square)](LICENSE)
@@ -35,8 +35,14 @@
 
 ### 🔒 安全检测
 - **端口扫描** — 33 个常见端口 + 自定义范围 + Banner 抓取
+- **服务识别** — 自动识别 SSH/FTP/MySQL/MSSQL/Redis 等 25+ 种服务
 - **漏洞检测** — MS17-010 永恒之蓝深度检测
-- **风险统计** — 自动汇总 445/3389 端口、匿名 SMB、SMB 签名等风险
+- **风险统计** — 自动汇总各类高危服务、漏洞风险
+
+### 🌐 服务探测
+- **服务识别** — 自动识别并获取 Banner 信息
+- **WiFi 扫描** — 收集附近无线网络信息
+- **LDAP 扫描** — 域环境 LDAP 服务器发现
 
 </td>
 </tr>
