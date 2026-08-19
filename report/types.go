@@ -14,6 +14,9 @@ type ScanResult struct {
 	NetBIOS    []NetBIOSInfo `json:"netbios_info,omitempty"`
 	SMBInfo    []SMBHostInfo `json:"smb_info,omitempty"`
 	PortScan   []PortScanResult `json:"port_scan,omitempty"`
+	Services   []ServiceDetectResult `json:"services,omitempty"`
+	WiFiInfo   []WiFiInfo    `json:"wifi_info,omitempty"`
+	LDAPInfo   *LDAPInfo    `json:"ldap_info,omitempty"`
 	VulnInfo   []VulnResult  `json:"vuln_info,omitempty"`
 	DomainInfo *DomainInfo   `json:"domain_info,omitempty"`
 	RiskStats  *RiskStats    `json:"risk_stats,omitempty"`
@@ -145,4 +148,41 @@ type RiskStats struct {
 	MS17010Count      int `json:"ms17010_count"`
 	WeakPasswordCount int `json:"weak_password_count"`
 	SMBNoSignCount    int `json:"smb_no_sign_count"`
+	OpenRDPCount     int `json:"open_rdp_count"`
+	OpenSSHCount     int `json:"open_ssh_count"`
+	OpenFTPCount     int `json:"open_ftp_count"`
+	OpenMySQLCount   int `json:"open_mysql_count"`
+	OpenMSSQLCount   int `json:"open_mssql_count"`
+	OpenRedisCount   int `json:"open_redis_count"`
+	OpenHTTPCount    int `json:"open_http_count"`
+	OpenLDAPCount    int `json:"open_ldap_count"`
+}
+
+type ServiceDetectResult struct {
+	IP     string         `json:"ip"`
+	Type   string         `json:"type"`
+	Port   int            `json:"port"`
+	Info   string         `json:"info"`
+	Banner string         `json:"banner,omitempty"`
+}
+
+type WiFiInfo struct {
+	SSID           string `json:"ssid"`
+	Authentication string `json:"authentication"`
+	Encryption     string `json:"encryption"`
+	Signal         int    `json:"signal"`
+	Channel        int    `json:"channel"`
+}
+
+type LDAPInfo struct {
+	ServerName      string   `json:"server_name"`
+	ServerIP       string   `json:"server_ip"`
+	BaseDN         string   `json:"base_dn"`
+	DomainName     string   `json:"domain_name"`
+	ForestName     string   `json:"forest_name"`
+	DomainSID      string   `json:"domain_sid"`
+	LDAPVersion    string   `json:"ldap_version"`
+	RootDomainNC   string   `json:"root_domain_nc"`
+	ConfigNC       string   `json:"config_nc"`
+	SchemaNC       string   `json:"schema_nc"`
 }

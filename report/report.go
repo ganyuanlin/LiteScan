@@ -170,6 +170,9 @@ tr:last-child td { border-bottom: none; }
 	html += buildSMBHTML(r)
 	html += buildPortScanHTML(r)
 	html += buildVulnHTML(r)
+	html += buildServiceDetectHTML(r)
+	html += buildWiFiHTML(r)
+	html += buildLDAPHTML(r)
 	if r.IsDomain {
 		html += buildDomainHTML(r)
 	}
@@ -199,14 +202,16 @@ func buildStatsBar(r *ScanResult) string {
 			vulnHigh++
 		}
 	}
+	serviceCount := len(r.Services)
+	wifiCount := len(r.WiFiInfo)
 
 	html := `<div class="stats-bar">`
 	html += `<div class="stat-card stat-cyan"><div class="stat-value">` + fmt.Sprintf("%d", aliveCount) + `</div><div class="stat-label">存活主机</div></div>`
 	html += `<div class="stat-card stat-purple"><div class="stat-value">` + fmt.Sprintf("%d", smbCount) + `</div><div class="stat-label">SMB服务</div></div>`
 	html += `<div class="stat-card stat-green"><div class="stat-value">` + fmt.Sprintf("%d", portCount) + `</div><div class="stat-label">开放端口</div></div>`
 	html += `<div class="stat-card stat-red"><div class="stat-value">` + fmt.Sprintf("%d", vulnHigh) + `</div><div class="stat-label">高危漏洞</div></div>`
-	html += `<div class="stat-card stat-yellow"><div class="stat-value">` + fmt.Sprintf("%d", len(r.ARPHosts)) + `</div><div class="stat-label">ARP记录</div></div>`
-	html += `<div class="stat-card stat-blue"><div class="stat-value">` + fmt.Sprintf("%d", len(r.NetBIOS)) + `</div><div class="stat-label">NetBIOS</div></div>`
+	html += `<div class="stat-card stat-yellow"><div class="stat-value">` + fmt.Sprintf("%d", serviceCount) + `</div><div class="stat-label">识别服务</div></div>`
+	html += `<div class="stat-card stat-blue"><div class="stat-value">` + fmt.Sprintf("%d", wifiCount) + `</div><div class="stat-label">WiFi网络</div></div>`
 	html += `</div>`
 	return html
 }
@@ -578,4 +583,96 @@ func infoCard(label, value string) string {
 		value = "-"
 	}
 	return `<div class="info-card"><div class="label">` + label + `</div><div class="value">` + value + `</div></div>`
+}
+
+func buildServiceDetectHTML(r *ScanResult) string {
+	if len(r.Services) == 0 {
+		return ""
+	}
+	html := `<div class="section"><div class="section-title"><span class="icon">&#128421;</span> 服务识别结果 (` + fmt.Sprintf("%d", len(r.Services)) + `)</div><div class="section-body">`
+	html += `<table><tr><th>IP地址</th><th>服务类型</th><th>端口</th><th>信息</th></tr>`
+	for _, s := range r.Services {
+		serviceBadge := getServiceBadge(s.Type)
+		html += fmt.Sprintf(`<tr><td>%s</td><td>%s</td><td>%d</td><td>%s</td></tr>`, s.IP, serviceBadge, s.Port, s.Info)
+	}
+	html += `</table></div></div>`
+	return html
+}
+
+func getServiceBadge(serviceType string) string {
+	switch serviceType {
+	case "ssh":
+		return `<span class="badge badge-blue">SSH</span>`
+	case "ftp":
+		return `<span class="badge badge-purple">FTP</span>`
+	case "telnet":
+		return `<span class="badge badge-red">Telnet</span>`
+	case "smtp", "smtps":
+		return `<span class="badge badge-purple">SMTP</span>`
+	case "dns":
+		return `<span class="badge badge-blue">DNS</span>`
+	case "http", "http-proxy", "https", "https-alt":
+		return `<span class="badge badge-green">Web</span>`
+	case "mssql":
+		return `<span class="badge badge-red">MSSQL</span>`
+	case "mysql":
+		return `<span class="badge badge-blue">MySQL</span>`
+	case "postgresql":
+		return `<span class="badge badge-blue">PostgreSQL</span>`
+	case "oracle":
+		return `<span class="badge badge-red">Oracle</span>`
+	case "redis":
+		return `<span class="badge badge-red">Redis</span>`
+	case "mongodb":
+		return `<span class="badge badge-green">MongoDB</span>`
+	case "rdp":
+		return `<span class="badge badge-blue">RDP</span>`
+	case "vnc":
+		return `<span class="badge badge-purple">VNC</span>`
+	case "netbios-ssn", "microsoft-ds":
+		return `<span class="badge badge-yellow">SMB</span>`
+	default:
+		return `<span class="badge badge-blue">` + serviceType + `</span>`
+	}
+}
+
+func buildWiFiHTML(r *ScanResult) string {
+	if len(r.WiFiInfo) == 0 {
+		return ""
+	}
+	html := `<div class="section"><div class="section-title"><span class="icon">&#128246;</span> 无线网络信息 (` + fmt.Sprintf("%d", len(r.WiFiInfo)) + `)</div><div class="section-body">`
+	html += `<table><tr><th>SSID</th><th>认证方式</th><th>加密方式</th><th>信号强度</th><th>频道</th></tr>`
+	for _, w := range r.WiFiInfo {
+		signalLevel := getSignalLevel(w.Signal)
+		html += fmt.Sprintf(`<tr><td>%s</td><td>%s</td><td>%s</td><td>%s %d%%</td><td>%d</td></tr>`, w.SSID, w.Authentication, w.Encryption, signalLevel, w.Signal, w.Channel)
+	}
+	html += `</table></div></div>`
+	return html
+}
+
+func getSignalLevel(signal int) string {
+	if signal >= 80 {
+		return `<span class="badge badge-green">强</span>`
+	} else if signal >= 50 {
+		return `<span class="badge badge-yellow">中</span>`
+	} else {
+		return `<span class="badge badge-red">弱</span>`
+	}
+}
+
+func buildLDAPHTML(r *ScanResult) string {
+	if r.LDAPInfo == nil {
+		return ""
+	}
+	l := r.LDAPInfo
+	html := `<div class="section"><div class="section-title"><span class="icon">&#128274;</span> LDAP服务信息</div><div class="section-body">`
+	html += `<div class="info-grid">`
+	html += infoCard("服务器名称", l.ServerName)
+	html += infoCard("服务器IP", l.ServerIP)
+	html += infoCard("Base DN", l.BaseDN)
+	html += infoCard("域名称", l.DomainName)
+	html += infoCard("Forest名称", l.ForestName)
+	html += infoCard("LDAP版本", l.LDAPVersion)
+	html += `</div></div></div>`
+	return html
 }

@@ -88,6 +88,9 @@ func main() {
 		NetBIOS:    nil,
 		SMBInfo:    nil,
 		PortScan:   nil,
+		Services:   nil,
+		WiFiInfo:   nil,
+		LDAPInfo:   nil,
 		VulnInfo:   nil,
 		DomainInfo: nil,
 		RiskStats:  nil,
@@ -694,6 +697,76 @@ func collectPortScanInfo(result *report.ScanResult, customPorts string, thread i
 		}
 		fmt.Printf("  [+] 端口扫描完成: %d 台主机共发现 %d 个开放端口\n", len(portResults), totalOpen)
 	}
+
+	collectServiceDetectInfo(result, thread, silent)
+	collectWiFiInfo(result, silent)
+	collectLDAPInfo(result, silent)
+}
+
+func collectServiceDetectInfo(result *report.ScanResult, thread int, silent bool) {
+	if !silent {
+		fmt.Println("\n[模块七-2] 服务识别...")
+	}
+
+	if len(result.AliveHosts) == 0 {
+		return
+	}
+
+	aliveIPs := make([]string, 0, len(result.AliveHosts))
+	for _, h := range result.AliveHosts {
+		aliveIPs = append(aliveIPs, h.IP)
+	}
+
+	serviceResults := scanner.DetectServices(aliveIPs, thread)
+	result.Services = serviceResults
+
+	if !silent {
+		fmt.Printf("  [+] 服务识别完成: %d 个服务\n", len(serviceResults))
+	}
+}
+
+func collectWiFiInfo(result *report.ScanResult, silent bool) {
+	if !silent {
+		fmt.Println("\n[模块九] WiFi信息收集...")
+	}
+
+	wifiResults := scanner.ScanWiFi()
+	result.WiFiInfo = wifiResults
+
+	if !silent {
+		fmt.Printf("  [+] WiFi扫描完成: %d 个网络\n", len(wifiResults))
+	}
+}
+
+func collectLDAPInfo(result *report.ScanResult, silent bool) {
+	if !silent {
+		fmt.Println("\n[模块十] LDAP信息收集...")
+	}
+
+	var domainName string
+	if result.LocalInfo != nil && result.LocalInfo.IsDomainEnv {
+		domainName = result.LocalInfo.DomainName
+	} else if result.DomainInfo != nil {
+		domainName = result.DomainInfo.DomainName
+	}
+
+	if domainName == "" {
+		if !silent {
+			fmt.Println("  [!] 非域环境，跳过LDAP扫描")
+		}
+		return
+	}
+
+	ldapResult := scanner.ScanLDAP(domainName)
+	result.LDAPInfo = ldapResult
+
+	if !silent {
+		if ldapResult != nil {
+			fmt.Printf("  [+] LDAP服务器: %s\n", ldapResult.ServerIP)
+		} else {
+			fmt.Println("  [!] 未发现LDAP服务器")
+		}
+	}
 }
 
 func collectVulnInfo(result *report.ScanResult, thread int, silent bool) {
@@ -734,11 +807,25 @@ func calcRiskStats(result *report.ScanResult) {
 
 	for _, h := range result.AliveHosts {
 		for _, p := range h.OpenPorts {
-			if p == 445 {
+			switch p {
+			case 445:
 				result.RiskStats.Open445Count++
-			}
-			if p == 3389 {
+			case 3389:
 				result.RiskStats.Open3389Count++
+			case 22:
+				result.RiskStats.OpenSSHCount++
+			case 21:
+				result.RiskStats.OpenFTPCount++
+			case 3306:
+				result.RiskStats.OpenMySQLCount++
+			case 1433:
+				result.RiskStats.OpenMSSQLCount++
+			case 6379:
+				result.RiskStats.OpenRedisCount++
+			case 80, 443, 8080, 8443:
+				result.RiskStats.OpenHTTPCount++
+			case 389, 636:
+				result.RiskStats.OpenLDAPCount++
 			}
 		}
 	}
